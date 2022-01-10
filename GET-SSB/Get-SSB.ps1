@@ -91,7 +91,8 @@ function Get-Netbios {
     Write-Host "ENABLED: $ENABLED"
     Write-Host "DEFAULT: $DEFAULT"
     Write-Host "ERROR: $ERR" 
-    #Write-Host "Go to $ReportPath\Netbios for Reports"
+    $print = Read-Host "`nType 'Print' to Print Report"
+    if ($print -eq "Print") { Get-Content -Path "$ReportPath\NETBIOS\REPORT.txt" | Out-Printer }
 
 }
 function Get-WPAD {
@@ -159,10 +160,11 @@ function Get-WPAD {
 
     ## get final report
     #Start-Process notepad++ "$ReportPath\WPAD\REPORT.txt"
-    #Get-Content -Path "$ReportPath\WPAD\REPORT.txt" | Out-Printer
     Write-Host "DISABLED: $DISABLED"
     Write-Host "ENABLED: $ENABLED"
-    Write-Host "ERROR: $ERR"     
+    Write-Host "ERROR: $ERR"
+    $print = Read-Host "`nType 'Print' to Print Report"
+    if ($print -eq "Print") { Get-Content -Path "$ReportPath\WPAD\REPORT.txt" | Out-Printer }
 }
 function Get-SophosAutoUpdate {
 
