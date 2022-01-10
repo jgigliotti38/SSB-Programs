@@ -25,7 +25,14 @@ function Get-Netbios {
     $ERR = 0
     $FINISHED = 0
 
-    Remove-Item -Path $ReportPath\NETBIOS\*.txt
+    ## initialize report folders
+    Remove-Item -Path $ReportPath\NETBIOS -Recurse
+    New-Item -Path $ReportPath -Name "NETBIOS\ENABLED" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "NETBIOS\DISABLED" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "NETBIOS\DEFAULT" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "NETBIOS\ERROR" -ItemType "directory"
+
+    ## initialize reports
     out-file -FilePath $ReportPath\NETBIOS\ENABLED.txt
     Add-Content -Path $ReportPath\NETBIOS\ENABLED.txt -Value "`nENABLED`n============"
     out-file -FilePath $ReportPath\NETBIOS\DISABLED.txt
@@ -35,6 +42,7 @@ function Get-Netbios {
     out-file -FilePath $ReportPath\NETBIOS\ERROR.txt
     Add-Content -Path $ReportPath\NETBIOS\ERROR.txt -Value "`nERROR`n============"
 
+    ## read .txt files
     Get-Content -Path $DeviceTextPath | ForEach-Object {
         [string]$Setting = Get-WMIObject win32_networkadapterconfiguration -ComputerName $_ -filter 'IPEnabled=true' -ErrorAction SilentlyContinue | Select-Object TcpipNetbiosOptions
         
@@ -65,8 +73,8 @@ function Get-Netbios {
         Write-Host "$PERCENTAGE % COMPLETE"
     }
     
+    ## combine reports
     $Report = Get-Content -Path $ReportPath\NETBIOS\*.txt
-    #Remove-Item -Path $ReportPath\NETBIOS\*.txt
     Out-File -FilePath $ReportPath\NETBIOS\REPORT.txt
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "NETBIOS REPORT`n********************"
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value $Report
@@ -76,12 +84,13 @@ function Get-Netbios {
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "DEFAULT: $DEFAULT"
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "ERROR: $ERR" 
     
-    Start-Process notepad++ "$ReportPath\NETBIOS\REPORT.txt"
+    ## get final report
+    #Start-Process notepad++ "$ReportPath\NETBIOS\REPORT.txt"
     #Get-Content -Path "$ReportPath\NETBIOS\REPORT.txt" | Out-Printer
-    #Write-Host "DISABLED: $DISABLED"
-    #Write-Host "ENABLED: $ENABLED"
-    #Write-Host "DEFAULT: $DEFAULT"
-    #Write-Host "ERROR: $ERR" 
+    Write-Host "DISABLED: $DISABLED"
+    Write-Host "ENABLED: $ENABLED"
+    Write-Host "DEFAULT: $DEFAULT"
+    Write-Host "ERROR: $ERR" 
     #Write-Host "Go to $ReportPath\Netbios for Reports"
 
 }
@@ -97,7 +106,14 @@ function Get-WPAD {
     $ERR = 0
     $FINISHED = 0
 
-    Remove-Item -Path $ReportPath\WPAD\*.txt
+    ## initialize report folders
+    Remove-Item -Path $ReportPath\WPAD -Recurse
+    New-Item -Path $ReportPath -Name "WPAD\ENABLED" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "WPAD\DISABLED" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "WPAD\DEFAULT" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "WPAD\ERROR" -ItemType "directory"
+
+    ## initialize reports
     out-file -FilePath $ReportPath\WPAD\ENABLED.txt
     Add-Content -Path $ReportPath\WPAD\ENABLED.txt -Value "`nENABLED`n============"
     out-file -FilePath $ReportPath\WPAD\DISABLED.txt
@@ -105,6 +121,7 @@ function Get-WPAD {
     out-file -FilePath $ReportPath\WPAD\ERROR.txt
     Add-Content -Path $ReportPath\WPAD\ERROR.txt -Value "`nERROR`n============"
     
+    ## read .txt files
     Get-Content -Path $DeviceTextPath | ForEach-Object {
         [string]$Setting = Get-Service -ComputerName $_ "*WinHTTP*" | Select-Object Status -ErrorAction SilentlyContinue
         if ($Setting -eq "@{Status=Stopped}") {
@@ -130,8 +147,8 @@ function Get-WPAD {
         Write-Host "$PERCENTAGE % COMPLETE"
     }
 
+    ## combine reports
     $Report = Get-Content -Path $ReportPath\WPAD\*.txt
-    #Remove-Item -Path $ReportPath\WPAD\*.txt
     Out-File -FilePath $ReportPath\WPAD\REPORT.txt
     Add-Content -Path $ReportPath\WPAD\REPORT.txt -Value "WPAD REPORT`n********************"
     Add-Content -Path $ReportPath\WPAD\REPORT.txt -Value $Report
@@ -140,11 +157,12 @@ function Get-WPAD {
     Add-Content -Path $ReportPath\WPAD\REPORT.txt -Value "ENABLED: $ENABLED"
     Add-Content -Path $ReportPath\WPAD\REPORT.txt -Value "ERROR: $ERR" 
 
-    Start-Process notepad++ "$ReportPath\WPAD\REPORT.txt"
+    ## get final report
+    #Start-Process notepad++ "$ReportPath\WPAD\REPORT.txt"
     #Get-Content -Path "$ReportPath\WPAD\REPORT.txt" | Out-Printer
-    #Write-Host "DISABLED: $DISABLED"
-    #Write-Host "ENABLED: $ENABLED"
-    #Write-Host "ERROR: $ERR"     
+    Write-Host "DISABLED: $DISABLED"
+    Write-Host "ENABLED: $ENABLED"
+    Write-Host "ERROR: $ERR"     
 }
 function Get-ManageEngine {
         
