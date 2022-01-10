@@ -25,7 +25,14 @@ function Get-Netbios {
     $ERR = 0
     $FINISHED = 0
 
-    Remove-Item -Path $ReportPath\NETBIOS\*.txt
+    ## initialize report folders
+    Remove-Item -Path $ReportPath\NETBIOS -Recurse
+    New-Item -Path $ReportPath -Name "NETBIOS\ENABLED" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "NETBIOS\DISABLED" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "NETBIOS\DEFAULT" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "NETBIOS\ERROR" -ItemType "directory"
+
+    ## initialize reports
     out-file -FilePath $ReportPath\NETBIOS\ENABLED.txt
     Add-Content -Path $ReportPath\NETBIOS\ENABLED.txt -Value "`nENABLED`n============"
     out-file -FilePath $ReportPath\NETBIOS\DISABLED.txt
@@ -35,6 +42,7 @@ function Get-Netbios {
     out-file -FilePath $ReportPath\NETBIOS\ERROR.txt
     Add-Content -Path $ReportPath\NETBIOS\ERROR.txt -Value "`nERROR`n============"
 
+    ## read .txt files
     Get-Content -Path $DeviceTextPath | ForEach-Object {
         [string]$Setting = Get-WMIObject win32_networkadapterconfiguration -ComputerName $_ -filter 'IPEnabled=true' -ErrorAction SilentlyContinue | Select-Object TcpipNetbiosOptions
         
@@ -65,8 +73,8 @@ function Get-Netbios {
         Write-Host "$PERCENTAGE % COMPLETE"
     }
     
+    ## combine reports
     $Report = Get-Content -Path $ReportPath\NETBIOS\*.txt
-    #Remove-Item -Path $ReportPath\NETBIOS\*.txt
     Out-File -FilePath $ReportPath\NETBIOS\REPORT.txt
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "NETBIOS REPORT`n********************"
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value $Report
@@ -76,13 +84,15 @@ function Get-Netbios {
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "DEFAULT: $DEFAULT"
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "ERROR: $ERR" 
     
-    Start-Process notepad++ "$ReportPath\NETBIOS\REPORT.txt"
+    ## get final report
+    #Start-Process notepad++ "$ReportPath\NETBIOS\REPORT.txt"
     #Get-Content -Path "$ReportPath\NETBIOS\REPORT.txt" | Out-Printer
-    #Write-Host "DISABLED: $DISABLED"
-    #Write-Host "ENABLED: $ENABLED"
-    #Write-Host "DEFAULT: $DEFAULT"
-    #Write-Host "ERROR: $ERR" 
-    #Write-Host "Go to $ReportPath\Netbios for Reports"
+    Write-Host "DISABLED: $DISABLED"
+    Write-Host "ENABLED: $ENABLED"
+    Write-Host "DEFAULT: $DEFAULT"
+    Write-Host "ERROR: $ERR" 
+    $print = Read-Host "`nType 'Print' to Print Report"
+    if ($print -eq "Print") { Get-Content -Path "$ReportPath\NETBIOS\REPORT.txt" | Out-Printer }
 
 }
 function Get-WPAD {
@@ -97,7 +107,14 @@ function Get-WPAD {
     $ERR = 0
     $FINISHED = 0
 
-    Remove-Item -Path $ReportPath\WPAD\*.txt
+    ## initialize report folders
+    Remove-Item -Path $ReportPath\WPAD -Recurse
+    New-Item -Path $ReportPath -Name "WPAD\ENABLED" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "WPAD\DISABLED" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "WPAD\DEFAULT" -ItemType "directory"
+    New-Item -Path $ReportPath -Name "WPAD\ERROR" -ItemType "directory"
+
+    ## initialize reports
     out-file -FilePath $ReportPath\WPAD\ENABLED.txt
     Add-Content -Path $ReportPath\WPAD\ENABLED.txt -Value "`nENABLED`n============"
     out-file -FilePath $ReportPath\WPAD\DISABLED.txt
@@ -105,6 +122,7 @@ function Get-WPAD {
     out-file -FilePath $ReportPath\WPAD\ERROR.txt
     Add-Content -Path $ReportPath\WPAD\ERROR.txt -Value "`nERROR`n============"
     
+    ## read .txt files
     Get-Content -Path $DeviceTextPath | ForEach-Object {
         [string]$Setting = Get-Service -ComputerName $_ "*WinHTTP*" | Select-Object Status -ErrorAction SilentlyContinue
         if ($Setting -eq "@{Status=Stopped}") {
@@ -130,8 +148,8 @@ function Get-WPAD {
         Write-Host "$PERCENTAGE % COMPLETE"
     }
 
+    ## combine reports
     $Report = Get-Content -Path $ReportPath\WPAD\*.txt
-    #Remove-Item -Path $ReportPath\WPAD\*.txt
     Out-File -FilePath $ReportPath\WPAD\REPORT.txt
     Add-Content -Path $ReportPath\WPAD\REPORT.txt -Value "WPAD REPORT`n********************"
     Add-Content -Path $ReportPath\WPAD\REPORT.txt -Value $Report
@@ -140,73 +158,14 @@ function Get-WPAD {
     Add-Content -Path $ReportPath\WPAD\REPORT.txt -Value "ENABLED: $ENABLED"
     Add-Content -Path $ReportPath\WPAD\REPORT.txt -Value "ERROR: $ERR" 
 
-    Start-Process notepad++ "$ReportPath\WPAD\REPORT.txt"
-    #Get-Content -Path "$ReportPath\WPAD\REPORT.txt" | Out-Printer
-    #Write-Host "DISABLED: $DISABLED"
-    #Write-Host "ENABLED: $ENABLED"
-    #Write-Host "ERROR: $ERR"     
+    ## get final report
+    #Start-Process notepad++ "$ReportPath\WPAD\REPORT.txt"
+    Write-Host "DISABLED: $DISABLED"
+    Write-Host "ENABLED: $ENABLED"
+    Write-Host "ERROR: $ERR"
+    $print = Read-Host "`nType 'Print' to Print Report"
+    if ($print -eq "Print") { Get-Content -Path "$ReportPath\WPAD\REPORT.txt" | Out-Printer }
 }
-function Get-ManageEngine {
-        
-    $ENABLED = 0
-    $DISABLED = 0
-    #$DEFAULT = 0
-    $ERR = 0
-    $FINISHED = 0
-
-    Remove-Item -Path $ReportPath\ManageEngine\*.txt
-    out-file -FilePath $ReportPath\ManageEngine\ENABLED.txt
-    Add-Content -Path $ReportPath\ManageEngine\ENABLED.txt -Value "`nENABLED`n============"
-    out-file -FilePath $ReportPath\ManageEngine\DISABLED.txt
-    Add-Content -Path $ReportPath\ManageEngine\DISABLED.txt -Value "`nDISABLED`n============"
-    out-file -FilePath $ReportPath\ManageEngine\ERROR.txt
-    Add-Content -Path $ReportPath\ManageEngine\ERROR.txt -Value "`nERROR`n============"
-    
-    Get-Content -Path $DeviceTextPath | ForEach-Object {
-        [string]$Setting = Get-Service -ComputerName $_ "ManageEngine UEMS -Agent" | Select-Object Status -ErrorAction SilentlyContinue
-        if ($Setting -eq "@{Status=Stopped}") {
-            #Write-Host "$_ WPAD Setting DISABLED"
-            Add-Content -Path $ReportPath\ManageEngine\DISABLED.txt -Value $_
-            $DISABLED += 1
-        } elseif ($Setting -eq "@{Status=Running}") {
-            #Write-Host "$_ WPAD Setting ENABLED"
-            Add-Content -Path $ReportPath\ManageEngine\ENABLED.txt -Value $_
-            $ENABLED += 1
-        } else {
-            #Write-Host "$_ ERROR"
-            Add-Content -Path $ReportPath\ManageEngine\ERROR.txt -Value $_
-            $ERR += 1
-        }
-
-        Clear-Host
-        Write-Host "ManageEngine Agent Settings"
-        Write-Host "Please Wait..."
-        $FINISHED += 1
-        $PERCENTAGE = ($FINISHED/$TOTAL)*100
-        $PERCENTAGE = [math]::Round($PERCENTAGE)
-        Write-Host "$PERCENTAGE % COMPLETE"
-    }
-
-    $Report = Get-Content -Path $ReportPath\ManageEngine\*.txt
-    #Remove-Item -Path $ReportPath\ManageEngine\*.txt
-    Out-File -FilePath $ReportPath\ManageEngine\REPORT.txt
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value "ManageEngine REPORT`n********************"
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value $Report
-
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value "`nDISABLED: $DISABLED"
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value "ENABLED: $ENABLED"
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value "ERROR: $ERR" 
-
-    Start-Process notepad++ "$ReportPath\ManageEngine\REPORT.txt"
-    #Get-Content -Path "$ReportPath\ManageEngine\REPORT.txt" | Out-Printer
-
-    #Write-Host "DISABLED: $DISABLED"
-    #Write-Host "ENABLED: $ENABLED"
-    #Write-Host "ERROR: $ERR"     
-}
-function Get-SMB {
-}
-
 function Get-SophosAutoUpdate {
 
     Get-Content -Path $DeviceTextPath | ForEach-Object {
@@ -265,10 +224,9 @@ function showHome {
     Write-Host "==================="
     Write-Host "1.) Get-NetBios"
     Write-Host "2.) Get-WPAD"
-    Write-Host "3.) Get-ManageEngine"
-    Write-Host "4.) Get-SophosFileScannerService"
-    Write-Host "5.) Start-SophosFileScannerService"
-    Write-Host "6.) Get-IPv6"
+    Write-Host "3.) Get-SophosFileScannerService"
+    Write-Host "4.) Start-SophosFileScannerService"
+    Write-Host "5.) Get-IPv6"
     Write-Host "0.) EXIT"
 }
 # **************************************************************
@@ -288,18 +246,14 @@ while ($choice -ne "0") {
         #Write-Host "Choice 2 Selected"
         Pause
     } if ($choice -eq "3") {
-        Get-ManageEngine
-        #Write-Host "Choice 3 Selected"
-        Pause
-    } if ($choice -eq "4") {
         Get-SophosFileScannerService
         #Write-Host "Choice 4 Selected"
         Pause
-    } if ($choice -eq "5") {
+    } if ($choice -eq "4") {
         Start-SophosFileScannerService
         #Write-Host "Choice 5 Selected"
         Pause
-    } if ($choice -eq "6") {
+    } if ($choice -eq "5") {
         Get-IPv6
         #Write-Host "Choice 6 Selected"
         Pause
