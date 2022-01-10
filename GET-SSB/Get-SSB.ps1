@@ -164,67 +164,6 @@ function Get-WPAD {
     Write-Host "ENABLED: $ENABLED"
     Write-Host "ERROR: $ERR"     
 }
-function Get-ManageEngine {
-        
-    $ENABLED = 0
-    $DISABLED = 0
-    #$DEFAULT = 0
-    $ERR = 0
-    $FINISHED = 0
-
-    Remove-Item -Path $ReportPath\ManageEngine\*.txt
-    out-file -FilePath $ReportPath\ManageEngine\ENABLED.txt
-    Add-Content -Path $ReportPath\ManageEngine\ENABLED.txt -Value "`nENABLED`n============"
-    out-file -FilePath $ReportPath\ManageEngine\DISABLED.txt
-    Add-Content -Path $ReportPath\ManageEngine\DISABLED.txt -Value "`nDISABLED`n============"
-    out-file -FilePath $ReportPath\ManageEngine\ERROR.txt
-    Add-Content -Path $ReportPath\ManageEngine\ERROR.txt -Value "`nERROR`n============"
-    
-    Get-Content -Path $DeviceTextPath | ForEach-Object {
-        [string]$Setting = Get-Service -ComputerName $_ "ManageEngine UEMS -Agent" | Select-Object Status -ErrorAction SilentlyContinue
-        if ($Setting -eq "@{Status=Stopped}") {
-            #Write-Host "$_ WPAD Setting DISABLED"
-            Add-Content -Path $ReportPath\ManageEngine\DISABLED.txt -Value $_
-            $DISABLED += 1
-        } elseif ($Setting -eq "@{Status=Running}") {
-            #Write-Host "$_ WPAD Setting ENABLED"
-            Add-Content -Path $ReportPath\ManageEngine\ENABLED.txt -Value $_
-            $ENABLED += 1
-        } else {
-            #Write-Host "$_ ERROR"
-            Add-Content -Path $ReportPath\ManageEngine\ERROR.txt -Value $_
-            $ERR += 1
-        }
-
-        Clear-Host
-        Write-Host "ManageEngine Agent Settings"
-        Write-Host "Please Wait..."
-        $FINISHED += 1
-        $PERCENTAGE = ($FINISHED/$TOTAL)*100
-        $PERCENTAGE = [math]::Round($PERCENTAGE)
-        Write-Host "$PERCENTAGE % COMPLETE"
-    }
-
-    $Report = Get-Content -Path $ReportPath\ManageEngine\*.txt
-    #Remove-Item -Path $ReportPath\ManageEngine\*.txt
-    Out-File -FilePath $ReportPath\ManageEngine\REPORT.txt
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value "ManageEngine REPORT`n********************"
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value $Report
-
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value "`nDISABLED: $DISABLED"
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value "ENABLED: $ENABLED"
-    Add-Content -Path $ReportPath\ManageEngine\REPORT.txt -Value "ERROR: $ERR" 
-
-    Start-Process notepad++ "$ReportPath\ManageEngine\REPORT.txt"
-    #Get-Content -Path "$ReportPath\ManageEngine\REPORT.txt" | Out-Printer
-
-    #Write-Host "DISABLED: $DISABLED"
-    #Write-Host "ENABLED: $ENABLED"
-    #Write-Host "ERROR: $ERR"     
-}
-function Get-SMB {
-}
-
 function Get-SophosAutoUpdate {
 
     Get-Content -Path $DeviceTextPath | ForEach-Object {
@@ -283,10 +222,9 @@ function showHome {
     Write-Host "==================="
     Write-Host "1.) Get-NetBios"
     Write-Host "2.) Get-WPAD"
-    Write-Host "3.) Get-ManageEngine"
-    Write-Host "4.) Get-SophosFileScannerService"
-    Write-Host "5.) Start-SophosFileScannerService"
-    Write-Host "6.) Get-IPv6"
+    Write-Host "3.) Get-SophosFileScannerService"
+    Write-Host "4.) Start-SophosFileScannerService"
+    Write-Host "5.) Get-IPv6"
     Write-Host "0.) EXIT"
 }
 # **************************************************************
@@ -306,18 +244,14 @@ while ($choice -ne "0") {
         #Write-Host "Choice 2 Selected"
         Pause
     } if ($choice -eq "3") {
-        Get-ManageEngine
-        #Write-Host "Choice 3 Selected"
-        Pause
-    } if ($choice -eq "4") {
         Get-SophosFileScannerService
         #Write-Host "Choice 4 Selected"
         Pause
-    } if ($choice -eq "5") {
+    } if ($choice -eq "4") {
         Start-SophosFileScannerService
         #Write-Host "Choice 5 Selected"
         Pause
-    } if ($choice -eq "6") {
+    } if ($choice -eq "5") {
         Get-IPv6
         #Write-Host "Choice 6 Selected"
         Pause
