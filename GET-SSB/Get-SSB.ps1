@@ -24,7 +24,7 @@ function Get-Netbios {
     $DISABLED = 0
     $DEFAULT = 0
     $ERR = 0
-    $FINISHED = 0
+
 
     ## initialize report folders
     Remove-Item -Path $ReportPath\NETBIOS -Recurse
