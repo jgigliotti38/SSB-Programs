@@ -179,12 +179,13 @@ function Get-SophosFileScannerService {
     Write-HOst "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
     Get-Content -Path $DeviceTextPath | ForEach-Object {
         [string]$Status = Get-Service -ComputerName $_ "Sophos File Scanner Service" | Select-Object Status -ErrorAction SilentlyContinue
+      
         if ($Status -eq "@{Status=Stopped}") {
             Write-Host $_
             Write-Host $Status
             Write-Host "========="
         }
-    }        
+    }
 }
 function Start-SophosFileScannerService {
     Write-HOst "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
