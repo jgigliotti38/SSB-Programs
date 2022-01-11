@@ -19,6 +19,7 @@ function Get-Netbios {
     # *** 1 = Enabled
     # *** 2 = Disabled
 
+    ## variables
     $ENABLED = 0
     $DISABLED = 0
     $DEFAULT = 0
@@ -41,9 +42,13 @@ function Get-Netbios {
     Add-Content -Path $ReportPath\NETBIOS\DEFAULT.txt -Value "====DEFAULT===="
     out-file -FilePath $ReportPath\NETBIOS\ERROR.txt
     Add-Content -Path $ReportPath\NETBIOS\ERROR.txt -Value "`nERROR`n============"
+    Clear-Host
 
     ## read .txt files
-    Get-Content -Path $DeviceTextPath | ForEach-Object {
+    Get-Content -Path $DeviceTextPath | ForEach-Object -Begin {
+        $i=0
+        $out = ""
+    } -Process {
         [string]$Setting = Get-WMIObject win32_networkadapterconfiguration -ComputerName $_ -filter 'IPEnabled=true' -ErrorAction SilentlyContinue | Select-Object TcpipNetbiosOptions
         
         if ($Setting -eq "@{TcpipNetbiosOptions=2}") {
@@ -63,15 +68,9 @@ function Get-Netbios {
             Add-Content -Path $ReportPath\NETBIOS\ERROR.txt -Value "$_"
             $ERR += 1
         }
-
-        Clear-Host
-        Write-Host "NETBIOS SETTINGS"
-        Write-Host "Please Wait..."
-        $FINISHED += 1
-        $PERCENTAGE = ($FINISHED/$TOTAL)*100
-        $PERCENTAGE = [math]::Round($PERCENTAGE)
-        Write-Host "$PERCENTAGE % COMPLETE"
-    }
+        $i = $i+1
+        Write-Progress -Activity "Retrieving NETBIOS Settings" -Status "Progress:" -PercentComplete ($i/$TOTAL*100)        
+    } -End { $out }
     
     ## combine reports
     $Report = Get-Content -Path $ReportPath\NETBIOS\*.txt
@@ -83,7 +82,7 @@ function Get-Netbios {
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "ENABLED: $ENABLED"
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "DEFAULT: $DEFAULT"
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "ERROR: $ERR" 
-    
+
     ## get final report
     #Start-Process notepad++ "$ReportPath\NETBIOS\REPORT.txt"
     #Get-Content -Path "$ReportPath\NETBIOS\REPORT.txt" | Out-Printer
@@ -100,12 +99,12 @@ function Get-WPAD {
     #Get-ItemProperty 'Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings' | Select-Object *Proxy*
     #Get-ItemProperty 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WinHttpAutoProxySvc' | Select-Object Start
     #Get-Service -ComputerName "MJ08T5B0" "*WinHTTP*" | Select-Object Status
-    
+
+    ## variables
     $ENABLED = 0
     $DISABLED = 0
     #$DEFAULT = 0
     $ERR = 0
-    $FINISHED = 0
 
     ## initialize report folders
     Remove-Item -Path $ReportPath\WPAD -Recurse
@@ -121,9 +120,13 @@ function Get-WPAD {
     Add-Content -Path $ReportPath\WPAD\DISABLED.txt -Value "`nDISABLED`n============"
     out-file -FilePath $ReportPath\WPAD\ERROR.txt
     Add-Content -Path $ReportPath\WPAD\ERROR.txt -Value "`nERROR`n============"
-    
+    Clear-Host
+
     ## read .txt files
-    Get-Content -Path $DeviceTextPath | ForEach-Object {
+    Get-Content -Path $DeviceTextPath | ForEach-Object -Begin {
+        $i = 0
+        $out = ""
+    } -Process {
         [string]$Setting = Get-Service -ComputerName $_ "*WinHTTP*" | Select-Object Status -ErrorAction SilentlyContinue
         if ($Setting -eq "@{Status=Stopped}") {
             #Write-Host "$_ WPAD Setting DISABLED"
@@ -138,15 +141,9 @@ function Get-WPAD {
             Add-Content -Path $ReportPath\WPAD\ERROR.txt -Value $_
             $ERR += 1
         }
-
-        Clear-Host
-        Write-Host "WPAD SETTINGS"
-        Write-Host "Please Wait..."
-        $FINISHED += 1
-        $PERCENTAGE = ($FINISHED/$TOTAL)*100
-        $PERCENTAGE = [math]::Round($PERCENTAGE)
-        Write-Host "$PERCENTAGE % COMPLETE"
-    }
+        $i = $i + 1
+        Write-Progress -Activity "Retrieving WPAD Settings" -Status "Progress:" -PercentComplete ($i/$TOTAL*100)
+    } -End { $out }
 
     ## combine reports
     $Report = Get-Content -Path $ReportPath\WPAD\*.txt
