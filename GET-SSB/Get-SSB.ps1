@@ -43,11 +43,12 @@ function Get-Netbios {
     out-file -FilePath $ReportPath\NETBIOS\ERROR.txt
     Add-Content -Path $ReportPath\NETBIOS\ERROR.txt -Value "`nERROR`n============"
     Clear-Host
-
+    
     ## read .txt files
+    $i=0
+    $out = ""
     Get-Content -Path $DeviceTextPath | ForEach-Object -Begin {
-        $i=0
-        $out = ""
+ 
     } -Process {
         [string]$Setting = Get-WMIObject win32_networkadapterconfiguration -ComputerName $_ -filter 'IPEnabled=true' -ErrorAction SilentlyContinue | Select-Object TcpipNetbiosOptions
         
@@ -84,8 +85,7 @@ function Get-Netbios {
     Add-Content -Path $ReportPath\NETBIOS\REPORT.txt -Value "ERROR: $ERR" 
 
     ## get final report
-    #Start-Process notepad++ "$ReportPath\NETBIOS\REPORT.txt"
-    #Get-Content -Path "$ReportPath\NETBIOS\REPORT.txt" | Out-Printer
+    Clear-Host
     Write-Host "DISABLED: $DISABLED"
     Write-Host "ENABLED: $ENABLED"
     Write-Host "DEFAULT: $DEFAULT"
@@ -123,9 +123,9 @@ function Get-WPAD {
     Clear-Host
 
     ## read .txt files
+    $i = 0
+    $out = ""
     Get-Content -Path $DeviceTextPath | ForEach-Object -Begin {
-        $i = 0
-        $out = ""
     } -Process {
         [string]$Setting = Get-Service -ComputerName $_ "*WinHTTP*" | Select-Object Status -ErrorAction SilentlyContinue
         if ($Setting -eq "@{Status=Stopped}") {
@@ -156,7 +156,7 @@ function Get-WPAD {
     Add-Content -Path $ReportPath\WPAD\REPORT.txt -Value "ERROR: $ERR" 
 
     ## get final report
-    #Start-Process notepad++ "$ReportPath\WPAD\REPORT.txt"
+    Clear-Host
     Write-Host "DISABLED: $DISABLED"
     Write-Host "ENABLED: $ENABLED"
     Write-Host "ERROR: $ERR"
