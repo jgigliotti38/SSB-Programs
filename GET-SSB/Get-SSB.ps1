@@ -8,8 +8,8 @@
 #
 
 # Universal Variables
-$DeviceTextPath = "C:\Users\jagadm\Desktop\WORK\TXT\SSBDevices.txt" 
-$ReportPath = "C:\Users\jagadm\Desktop\WORK\REPORTS"
+$DeviceTextPath = "C:\Users\jagadm\Desktop\TXT\SSBDevices.txt" 
+$ReportPath = "C:\Users\jagadm\Desktop\REPORTS"
 $TOTAL = (Get-Content -Path $DeviceTextPath).Count
 
 # Functions
